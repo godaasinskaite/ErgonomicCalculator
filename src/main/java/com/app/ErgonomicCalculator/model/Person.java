@@ -30,7 +30,7 @@ public class Person {
     @OneToOne(mappedBy = "person", cascade = CascadeType.ALL)
     private PersonAnthropometrics personAnthropometrics;
 
-    @OneToOne(mappedBy = "person", cascade = CascadeType.REMOVE)
+    @OneToOne(mappedBy = "person", cascade = CascadeType.ALL)
     private WorkspaceMetrics workspaceMetrics;
 
     @Override

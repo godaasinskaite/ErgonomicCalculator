@@ -1,6 +1,7 @@
 package com.app.ErgonomicCalculator.service;
 
 import com.app.ErgonomicCalculator.dto.AnthropometricsRequestDto;
+import com.app.ErgonomicCalculator.dto.AnthropometricsRequestDtoAfterAuth;
 import com.app.ErgonomicCalculator.exception.InvalidDataException;
 import com.app.ErgonomicCalculator.exception.ResourceNotFoundException;
 import com.app.ErgonomicCalculator.model.Person;
@@ -17,6 +18,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * Service for managing operations related new PersonAnthropometric processing, new PersonWorkspace creation, retrieving PDFs.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -27,23 +31,63 @@ public class ErgonomicCalculatorService {
     private final AnthropometricsService anthropometricsService;
     private final PersonService personService;
 
+    /**
+     * Validates, saves or updates new person anthropometric data, creates a workspace based on the saved data,
+     * and generates a PDF of the workspace metrics.
+     *
+     * @param anthropometricsRequestDto the Data Transfer Object containing person email and the anthropometric data to be validated and saved.
+     * @throws InvalidDataException   if the provided anthropometrics data is invalid and does not pass validation.
+     * @throws IllegalAccessException if there is an access violation during the creation of the workspace.
+     * @throws IOException            if an I/O error occurs during the PDF creation process.
+     */
     public void getNewPersonAnthropometricsAndCreateWorkspace(final AnthropometricsRequestDto anthropometricsRequestDto) throws InvalidDataException, IllegalAccessException, IOException {
-        PersonAnthropometrics anthropometrics = anthropometricsService.validateAndSaveAnthropometrics(anthropometricsRequestDto);
-        WorkspaceMetrics workspaceMetrics = workspaceMetricsService.createNewWorkplace(anthropometrics);
+        final PersonAnthropometrics anthropometrics = anthropometricsService.validateAndSaveAnthropometrics(anthropometricsRequestDto);
+        final WorkspaceMetrics workspaceMetrics = workspaceMetricsService.createNewWorkplace(anthropometrics);
         PDFService.createWorkspacePDF(workspaceMetrics);
     }
 
+    /**
+     * Validates, saves or updates new person anthropometric data, creates a workspace based on the saved data,
+     * and generates a PDF of the workspace metrics. This method is called when a person authenticates themselves and provides new anthropometrics data.
+     *
+     * @param dtoAfterAuth the Data Transfer Object containing anthropometric data to be validated and saved.
+     * @param email        param retrieved from Authentication
+     * @throws InvalidDataException   if the provided anthropometrics data is invalid.
+     * @throws IllegalAccessException if there is an access violation during the creation of the workspace.
+     * @throws IOException            if an I/O error occurs during the PDF creation process.
+     */
+    public void updateOrCreateAnthropometricsAndWorkspace(final AnthropometricsRequestDtoAfterAuth dtoAfterAuth, String email) throws InvalidDataException, IllegalAccessException, IOException {
+        AnthropometricsRequestDto dto = anthropometricsService.mapRequests(dtoAfterAuth, email);
+        final PersonAnthropometrics anthropometrics = anthropometricsService.validateAndSaveAnthropometrics(dto);
+        final WorkspaceMetrics workspaceMetrics = workspaceMetricsService.createNewWorkplace(anthropometrics);
+        PDFService.createWorkspacePDF(workspaceMetrics);
+    }
+
+    /**
+     * Retrieves the PDF file for the workspace metrics associated with a person identified by their email.
+     *
+     * @param email the email address of the person whose workspace PDF is to be retrieved.
+     * @return the File object representing the PDF file of the workspace metrics.
+     */
     public File getWorkspacePDF(final String email) {
-        Person person = personService.findPersonByEmail(email);
-        String path = person.getWorkspaceMetrics().getImagePath();
+        final Person person = personService.findPersonByEmail(email);
+        final String path = person.getWorkspaceMetrics().getImagePath();
         return new File(path);
     }
 
-    public InputStream getWorkspacePDFStream(final String email) throws ResourceNotFoundException, IOException, IOException {
-        Person person = personService.findPersonByEmail(email);
-        String path = person.getWorkspaceMetrics().getImagePath();
+    /**
+     * Retrieves an InputStream for the PDF file of the workspace metrics associated with a person identified by their email.
+     *
+     * @param email the email address of the person whose workspace PDF is to be retrieved.
+     * @return an InputStream for the PDF file of the workspace metrics.
+     * @throws ResourceNotFoundException if the PDF file for the workspace metrics cannot be found.
+     * @throws IOException               if an I/O error occurs while accessing the PDF file.
+     */
+    public InputStream getWorkspacePDFStream(final String email) throws ResourceNotFoundException, IOException {
+        final Person person = personService.findPersonByEmail(email);
+        final String path = person.getWorkspaceMetrics().getImagePath();
 
-        Resource resource = new FileSystemResource(path);
+        final Resource resource = new FileSystemResource(path);
         if (!resource.exists()) {
             throw new ResourceNotFoundException("Resource cannot be found.");
         }

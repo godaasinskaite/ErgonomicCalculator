@@ -2,10 +2,8 @@ package com.app.ErgonomicCalculator.utils;
 
 import com.app.ErgonomicCalculator.dto.AnthropometricsRequestDto;
 import com.app.ErgonomicCalculator.model.Person;
-import com.app.ErgonomicCalculator.model.PersonAnthropometrics;
 import com.app.ErgonomicCalculator.repository.PersonRepository;
 import com.app.ErgonomicCalculator.service.ErgonomicCalculatorService;
-import com.app.ErgonomicCalculator.service.PersonService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -35,18 +33,18 @@ public class TestDataLoader implements CommandLineRunner {
 
         AnthropometricsRequestDto anthropometrics1 = AnthropometricsRequestDto.builder()
                 .height(170.5)
-                .sittingHeight(85.2)
-                .shoulderHeight(145.3)
-                .lowerLegLength(80.7)
-                .hipBreadth(30.5)
+                .sittingHeight(95.2)
+                .shoulderHeight(75.3)
+                .lowerLegLength(60.7)
+                .hipBreadth(59.5)
                 .elbowHeight(30.2)
                 .thighClearance(20.5)
-                .eyeHeight(160.0)
+                .eyeHeight(85.0)
                 .shoulderBreadth(45.8)
                 .kneeHeight(50.3)
                 .personEmail("goda@mail.com")
                 .eyeHeightStanding(160.0)
-                .elbowHeightStanding(150.0)
+                .elbowHeightStanding(130.0)
                 .build();
 
         AnthropometricsRequestDto anthropometrics2 = AnthropometricsRequestDto.builder()

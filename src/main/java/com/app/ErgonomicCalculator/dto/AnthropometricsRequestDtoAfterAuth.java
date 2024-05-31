@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AnthropometricsRequestDto {
-
+public class AnthropometricsRequestDtoAfterAuth {
     private Double height;
     private Double sittingHeight;
     private Double shoulderHeight;
@@ -23,5 +22,4 @@ public class AnthropometricsRequestDto {
     private Double eyeHeight;
     private Double shoulderBreadth;
     private Double kneeHeight;
-    private String personEmail;
 }

@@ -21,8 +21,7 @@ public class AnthropometricsRequestValidator {
                     log.error("Validation failed. Field '" + field.getName() + "' is null or empty.");
                     throw new InvalidDataException("Field '" + field.getName() + "' must not be null or empty.");
                 }
-            }
-            else if (field.getType() == Double.class) {
+            } else if (field.getType() == Double.class) {
                 if (value == null || (Double) value == 0.0) {
                     log.error("Validation failed. Field '" + field.getName() + "' is null or zero.");
                     throw new InvalidDataException("Field '" + field.getName() + "' must not be null or zero.");

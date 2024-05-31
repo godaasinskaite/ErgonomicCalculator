@@ -15,57 +15,48 @@ import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 
+
+/**
+ * Service for creating and saving workspace PDF file.
+ */
 @Service
 @RequiredArgsConstructor
 public class PDFService {
 
     private final WorkspaceMetricsRepository workspaceMetricsRepository;
 
-    public void createWorkspacePDF(WorkspaceMetrics workspaceMetrics) {
+    /**
+     * Method creates a PDF document for the provided workspace metrics.
+     * Updates workspace entity with generated value of unique name, saves to resources and repository.
+     *
+     * @param workspaceMetrics object containing the metrics for the workspace.
+     */
+    public void createWorkspacePDF(final WorkspaceMetrics workspaceMetrics) {
         try {
-            File file = new File("src/main/resources/brown-shipping-and-packing-square-box.jpg");
+            File file = new File("src/main/resources/workspace-template.png");
             PDDocument document = new PDDocument();
             PDImageXObject image = PDImageXObject.createFromFileByContent(file, document);
 
             PDPage page = new PDPage(PDRectangle.A4);
             document.addPage(page);
 
-            // Add image to the background
             PDPageContentStream contentStream = new PDPageContentStream(document, page);
+
             contentStream.drawImage(image, 0, 0, PDRectangle.A4.getWidth(), PDRectangle.A4.getHeight());
 
-            addPlaceholder(contentStream, "Table Height Seated:", 50, 700);
-            addPlaceholder(contentStream, String.valueOf(workspaceMetrics.getTableHeightSeated()), 250, 700);
+            addEmailPlaceholder(contentStream, workspaceMetrics.getPerson().getEmail() + " workspace!", 200, 770);
 
-            addPlaceholder(contentStream, "Table Height Standing:", 50, 650);
-            addPlaceholder(contentStream, String.valueOf(workspaceMetrics.getTableHeightStanding()), 250, 650);
-
-            addPlaceholder(contentStream, "Table Width:", 50, 600);
-            addPlaceholder(contentStream, String.valueOf(workspaceMetrics.getTableWidth()), 250, 600);
-
-            addPlaceholder(contentStream, "Display Height Seated:", 50, 550);
-            addPlaceholder(contentStream, String.valueOf(workspaceMetrics.getDisplayHeightSeated()), 250, 550);
-
-            addPlaceholder(contentStream, "Display Height Standing:", 50, 500);
-            addPlaceholder(contentStream, String.valueOf(workspaceMetrics.getDisplayHeightStanding()), 250, 500);
-
-            addPlaceholder(contentStream, "Chair Seat Height:", 50, 450);
-            addPlaceholder(contentStream, String.valueOf(workspaceMetrics.getChairSeatHeight()), 250, 450);
-
-            addPlaceholder(contentStream, "Chair Seat Width:", 50, 400);
-            addPlaceholder(contentStream, String.valueOf(workspaceMetrics.getChairSeatWidth()), 250, 400);
-
-            addPlaceholder(contentStream, "Armrest Height:", 50, 350);
-            addPlaceholder(contentStream, String.valueOf(workspaceMetrics.getArmRestHeight()), 250, 350);
-
-            addPlaceholder(contentStream, "Chair Back Support Height:", 50, 300);
-            addPlaceholder(contentStream, String.valueOf(workspaceMetrics.getChairBackSupportHeight()), 250, 300);
-
-            addPlaceholder(contentStream, "Chair Back Support Width:", 50, 250);
-            addPlaceholder(contentStream, String.valueOf(workspaceMetrics.getChairBackSupportWidth()), 250, 250);
-
-            addPlaceholder(contentStream, "Chair Head Support Height:", 50, 200);
-            addPlaceholder(contentStream, String.valueOf(workspaceMetrics.getChairHeadSupportHeight()), 250, 200);
+            addPlaceholder(contentStream, String.valueOf(workspaceMetrics.getTableHeightSeated()), 427, 412);
+            addPlaceholder(contentStream, "Desk Height when Standing: " + workspaceMetrics.getTableHeightStanding(), 351, 670);
+            addPlaceholder(contentStream, String.valueOf(workspaceMetrics.getTableWidth()), 495, 483);
+            addPlaceholder(contentStream, String.valueOf(workspaceMetrics.getDisplayHeightSeated()), 545, 434);
+            addPlaceholder(contentStream, "Display Height when Standing: " + workspaceMetrics.getDisplayHeightStanding(), 351, 640);
+            addPlaceholder(contentStream, String.valueOf(workspaceMetrics.getChairSeatHeight()), 300, 388);
+            addPlaceholder(contentStream, String.valueOf(workspaceMetrics.getChairSeatWidth()), 202, 461);
+            addPlaceholder(contentStream, String.valueOf(workspaceMetrics.getArmRestHeight()), 381, 412);
+            addPlaceholder(contentStream, String.valueOf(workspaceMetrics.getChairBackSupportHeight()), 84, 590);
+            addPlaceholder(contentStream, String.valueOf(workspaceMetrics.getChairBackSupportWidth()), 188, 568);
+            addPlaceholder(contentStream, String.valueOf(workspaceMetrics.getChairHeadSupportHeight()), 17, 590);
 
             contentStream.close();
 
@@ -83,9 +74,35 @@ public class PDFService {
         }
     }
 
-    private void addPlaceholder(PDPageContentStream contentStream, String label, float x, float y) throws IOException {
+    /**
+     * Method adds a placeholder text label on a PDF page.
+     *
+     * @param contentStream the PDPageContentStream object for adding content to the PDF page.
+     * @param label         the label text to be displayed as a placeholder for the text.
+     * @param x             the x-coordinate position where the text will be placed on the PDF page.
+     * @param y             the y-coordinate position where the text will be placed on the PDF page.
+     * @throws IOException if an I/O error occurs while adding the placeholder text to the PDF page.
+     */
+    private void addPlaceholder(final PDPageContentStream contentStream, final String label, final float x, final float y) throws IOException {
         contentStream.beginText();
-        contentStream.setFont(PDType1Font.COURIER, 12);
+        contentStream.setFont(PDType1Font.HELVETICA, 13);
+        contentStream.newLineAtOffset(x, y);
+        contentStream.showText(label);
+        contentStream.endText();
+    }
+
+    /**
+     * Method adds a placeholder text for an email label on a PDF page.
+     *
+     * @param contentStream the PDPageContentStream object for adding content to the PDF page.
+     * @param label         the label text to be displayed as a placeholder for the text.
+     * @param x             the x-coordinate position where the text will be placed on the PDF page.
+     * @param y             the y-coordinate position where the text will be placed on the PDF page.
+     * @throws IOException if an I/O error occurs while adding the placeholder text to the PDF page.
+     */
+    private void addEmailPlaceholder(final PDPageContentStream contentStream, final String label, final float x, final float y) throws IOException {
+        contentStream.beginText();
+        contentStream.setFont(PDType1Font.HELVETICA, 20);
         contentStream.newLineAtOffset(x, y);
         contentStream.showText(label);
         contentStream.endText();

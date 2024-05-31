@@ -15,7 +15,7 @@ import javax.persistence.*;
 public class PersonAnthropometrics {
 
     @Id
-    @GeneratedValue (strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private Double height;

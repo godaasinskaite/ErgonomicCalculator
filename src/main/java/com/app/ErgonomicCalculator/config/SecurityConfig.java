@@ -10,9 +10,6 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
@@ -21,6 +18,13 @@ public class SecurityConfig {
 
     private final PersonAuthProvider personAuthProvider;
 
+    /**
+     * Configures the security filter chain for the application.
+     *
+     * @param http the HttpSecurity object used to configure security settings.
+     * @return a SecurityFilterChain instance representing the configured security filter chain.
+     * @throws Exception if an error occurs during security configuration.
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
@@ -37,7 +41,7 @@ public class SecurityConfig {
                                 .antMatchers(HttpMethod.DELETE, "/api/person/delete/**").permitAll()
                                 .antMatchers(HttpMethod.GET, "/api/ergonomic/download/**").permitAll()
                                 .anyRequest().authenticated()
-                        );
+                );
         return http.build();
     }
 }

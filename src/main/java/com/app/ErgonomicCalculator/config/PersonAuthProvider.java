@@ -9,7 +9,6 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.fasterxml.jackson.databind.ser.Serializers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,7 +16,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.time.Instant;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
@@ -37,6 +35,12 @@ public class PersonAuthProvider {
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
+    /**
+     * Creates a JWT token for the provided person Data Transfer Object.
+     *
+     * @param dto the person Data Transfer Object containing the user information
+     * @return a JWT token string representing the authenticated user/
+     */
     public String createToken(PersonDto dto) {
         Date now = new Date();
         Date validity = new Date(now.getTime() + 3_600_000);
@@ -50,6 +54,12 @@ public class PersonAuthProvider {
                 .sign(Algorithm.HMAC256(secretKey));
     }
 
+    /**
+     * Validates the provided JWT token and retrieves user authentication details.
+     *
+     * @param token the JWT token string to validate.
+     * @return Authentication object representing the authenticated user.
+     */
     public Authentication validateToken(String token) {
         Algorithm algorithm = Algorithm.HMAC256(secretKey);
 
@@ -65,6 +75,13 @@ public class PersonAuthProvider {
         return new UsernamePasswordAuthenticationToken(person, null, Collections.emptyList());
     }
 
+    /**
+     * Validates the provided JWT token strongly and retrieves user authentication details.
+     *
+     * @param token the JWT token string to validate
+     * @return Authentication object representing the authenticated user
+     * @throws PersonNotFoundException if the user associated with the token can not be found.
+     */
     public Authentication validateTokenStrongly(String token) throws PersonNotFoundException {
         Algorithm algorithm = Algorithm.HMAC256(secretKey);
 

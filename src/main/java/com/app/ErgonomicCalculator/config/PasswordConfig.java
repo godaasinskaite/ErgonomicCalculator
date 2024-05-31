@@ -8,6 +8,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class PasswordConfig {
 
+    /**
+     * Provides a bean for encoding passwords.
+     *
+     * @return BCryptPasswordEncoder instance for secure passwords encoding.
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
