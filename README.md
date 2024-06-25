@@ -1,8 +1,8 @@
 # Ergonomic Workspace Calculator
 
 ### 🌟 Overview
-  This Spring Boot application is a tool designed to create ergonomic workspace tailored to a persons individual anthropometric data.
-By inputting specific, individual measurements, calculator generates a customized workspace layour and produces a PDF file detailing optimal ergonomic set up.
+  This Spring Boot application is a tool designed to create ergonomic workspace tailored to a person individual anthropometric data.
+By inputting specific, individual measurements, calculator generates a customized workspace layout and produces a PDF file detailing optimal ergonomic set up.
 
   This should be a help for those users who spent most of their productive time at the desk sitting or standing.
 
@@ -12,7 +12,7 @@ By inputting specific, individual measurements, calculator generates a customize
 
 - Workspace Creation: Based on provided anthropometric measures, ergonomic workspace is calculated.
 
-- PDF Generation: using generated workspace metrics object PDF of workplace picture and important information is generated in PDF.
+- PDF Generation: Using generated workspace metrics object PDF of workplace picture and important information is generated in PDF.
 
 - Login and Registration: User can change password, update their anthropometric data and check their workspace PDF anytime after their register an account.
 
