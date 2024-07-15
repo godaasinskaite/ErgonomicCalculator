@@ -9,7 +9,7 @@ By inputting specific, individual measurements, calculator generates a customize
 ### 🚀 Features
 - Anthropometric Data Input: Users can input their personal body measurements. 
 
-  <img src="https://github.com/user-attachments/assets/f48036eb-529e-4233-811f-a66e6e9fdfe4" alt="Dizainas be pavadinimo" style="width:70%"/>
+  <img src="https://github.com/user-attachments/assets/f48036eb-529e-4233-811f-a66e6e9fdfe4" alt="Dizainas be pavadinimo"/>
 
 - Workspace Creation: Based on provided anthropometric measures, ergonomic workspace is calculated.
 
