@@ -8,7 +8,8 @@ By inputting specific, individual measurements, calculator generates a customize
 
 ### 🚀 Features
 - Anthropometric Data Input: Users can input their personal body measurements. 
-<img width="500" alt="Screenshot 2024-05-31 at 18 55 31" src="https://github.com/godaasinskaite/ErgonomicCalculator/assets/148675690/a242ac21-d21d-4d5f-bd65-4ac761552f43">
+
+  <img src="https://github.com/user-attachments/assets/f48036eb-529e-4233-811f-a66e6e9fdfe4" alt="Dizainas be pavadinimo" style="width:70%"/>
 
 - Workspace Creation: Based on provided anthropometric measures, ergonomic workspace is calculated.
 
@@ -29,7 +30,6 @@ By inputting specific, individual measurements, calculator generates a customize
 - Mockito
 - Apache PDFBox
 - Lombok
-- SwaggerUI
 
  #### Front-end part of this project is built with Angular and styled using Bootstrap framework. For more information: https://github.com/godaasinskaite/ergonomic-calculator
 
