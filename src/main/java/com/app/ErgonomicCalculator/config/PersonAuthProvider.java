@@ -41,9 +41,9 @@ public class PersonAuthProvider {
      * @param dto the person Data Transfer Object containing the user information
      * @return a JWT token string representing the authenticated user/
      */
-    public String createToken(PersonDto dto) {
-        Date now = new Date();
-        Date validity = new Date(now.getTime() + 3_600_000);
+    public String createToken(final PersonDto dto) {
+        final Date now = new Date();
+        final Date validity = new Date(now.getTime() + 3_600_000);
 
         return JWT.create()
                 .withIssuer(dto.getEmail())
@@ -60,13 +60,13 @@ public class PersonAuthProvider {
      * @param token the JWT token string to validate.
      * @return Authentication object representing the authenticated user.
      */
-    public Authentication validateToken(String token) {
-        Algorithm algorithm = Algorithm.HMAC256(secretKey);
+    public Authentication validateToken(final String token) {
+        final Algorithm algorithm = Algorithm.HMAC256(secretKey);
 
-        JWTVerifier verifier = JWT.require(algorithm).build();
-        DecodedJWT decoded = verifier.verify(token);
+        final JWTVerifier verifier = JWT.require(algorithm).build();
+        final DecodedJWT decoded = verifier.verify(token);
 
-        PersonDto person = PersonDto.builder()
+        final PersonDto person = PersonDto.builder()
                 .email(decoded.getIssuer())
                 .firstName(decoded.getClaim("firstName").asString())
                 .lastName(decoded.getClaim("lastName").asString())
@@ -82,13 +82,13 @@ public class PersonAuthProvider {
      * @return Authentication object representing the authenticated user
      * @throws PersonNotFoundException if the user associated with the token can not be found.
      */
-    public Authentication validateTokenStrongly(String token) throws PersonNotFoundException {
-        Algorithm algorithm = Algorithm.HMAC256(secretKey);
+    public Authentication validateTokenStrongly(final String token) throws PersonNotFoundException {
+        final Algorithm algorithm = Algorithm.HMAC256(secretKey);
 
-        JWTVerifier verifier = JWT.require(algorithm).build();
-        DecodedJWT decoded = verifier.verify(token);
+        final JWTVerifier verifier = JWT.require(algorithm).build();
+        final DecodedJWT decoded = verifier.verify(token);
 
-        Person person = personRepository.findByEmail(decoded.getIssuer())
+        final Person person = personRepository.findByEmail(decoded.getIssuer())
                 .orElseThrow(() -> new PersonNotFoundException("Unknown user"));
 
         return new UsernamePasswordAuthenticationToken(personMapper.toPersonDto(person), null, Collections.emptyList());

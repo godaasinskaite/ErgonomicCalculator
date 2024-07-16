@@ -2,6 +2,7 @@ package com.app.ErgonomicCalculator.service;
 
 import com.app.ErgonomicCalculator.dto.AnthropometricsRequestDto;
 import com.app.ErgonomicCalculator.dto.AnthropometricsRequestDtoAfterAuth;
+import com.app.ErgonomicCalculator.dto.PersonDto;
 import com.app.ErgonomicCalculator.exception.InvalidDataException;
 import com.app.ErgonomicCalculator.exception.ResourceNotFoundException;
 import com.app.ErgonomicCalculator.model.Person;
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -50,14 +52,15 @@ public class ErgonomicCalculatorService {
      * Validates, saves or updates new person anthropometric data, creates a workspace based on the saved data,
      * and generates a PDF of the workspace metrics. This method is called when a person authenticates themselves and provides new anthropometrics data.
      *
-     * @param dtoAfterAuth the Data Transfer Object containing anthropometric data to be validated and saved.
-     * @param email        param retrieved from Authentication
+     * @param dtoAfterAuth   the Data Transfer Object containing anthropometric data to be validated and saved.
+     * @param authentication param to retrieve user email.
      * @throws InvalidDataException   if the provided anthropometrics data is invalid.
      * @throws IllegalAccessException if there is an access violation during the creation of the workspace.
      * @throws IOException            if an I/O error occurs during the PDF creation process.
      */
-    public void updateOrCreateAnthropometricsAndWorkspace(final AnthropometricsRequestDtoAfterAuth dtoAfterAuth, String email) throws InvalidDataException, IllegalAccessException, IOException {
-        AnthropometricsRequestDto dto = anthropometricsService.mapRequests(dtoAfterAuth, email);
+    public void updateOrCreateAnthropometricsAndWorkspace(final AnthropometricsRequestDtoAfterAuth dtoAfterAuth, final Authentication authentication) throws InvalidDataException, IllegalAccessException, IOException {
+        final PersonDto personDto = (PersonDto) authentication.getPrincipal();
+        AnthropometricsRequestDto dto = anthropometricsService.mapRequests(dtoAfterAuth, personDto.getEmail());
         final PersonAnthropometrics anthropometrics = anthropometricsService.validateAndSaveAnthropometrics(dto);
         final WorkspaceMetrics workspaceMetrics = workspaceMetricsService.createNewWorkplace(anthropometrics);
         PDFService.createWorkspacePDF(workspaceMetrics);
@@ -73,6 +76,17 @@ public class ErgonomicCalculatorService {
         final Person person = personService.findPersonByEmail(email);
         final String path = person.getWorkspaceMetrics().getImagePath();
         return new File(path);
+    }
+
+    /**
+     * Retrieves the PDF of the workspace after Person is authenticated.
+     *
+     * @param authentication object containing user credentials to retrieve user email.
+     * @return the File object representing the PDF file of the workspace metrics.
+     */
+    public File getWorkspacePDFAfterAuth(Authentication authentication) {
+        final PersonDto personDto = (PersonDto) authentication.getPrincipal();
+        return getWorkspacePDF(personDto.getEmail());
     }
 
     /**
@@ -92,5 +106,18 @@ public class ErgonomicCalculatorService {
             throw new ResourceNotFoundException("Resource cannot be found.");
         }
         return resource.getInputStream();
+    }
+
+    /**
+     * Retrieves an InputStream of the PDF file after person is authenticated.
+     *
+     * @param authentication object containing user credentials to retrieve user email.
+     * @return an InputStream for the PDF file of the workspace metrics.
+     * @throws IOException               if the PDF file for the workspace metrics cannot be found.
+     * @throws ResourceNotFoundException if an I/O error occurs while accessing the PDF file.
+     */
+    public InputStream getWorkspacePDFStreamAfterAuth(final Authentication authentication) throws IOException, ResourceNotFoundException {
+        final PersonDto personDto = (PersonDto) authentication.getPrincipal();
+        return getWorkspacePDFStream(personDto.getEmail());
     }
 }

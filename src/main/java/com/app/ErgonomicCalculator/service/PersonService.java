@@ -1,5 +1,6 @@
 package com.app.ErgonomicCalculator.service;
 
+import com.app.ErgonomicCalculator.config.PersonAuthProvider;
 import com.app.ErgonomicCalculator.dto.CredentialsDto;
 import com.app.ErgonomicCalculator.dto.PasswordUpdateRequestDto;
 import com.app.ErgonomicCalculator.dto.PersonDto;
@@ -14,6 +15,7 @@ import com.app.ErgonomicCalculator.repository.PersonRepository;
 import com.app.ErgonomicCalculator.validator.PasswordValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -35,6 +37,7 @@ public class PersonService {
     private final PersonMapper personMapper;
     private final PasswordEncoder passwordEncoder;
     private final PasswordValidator passwordUpdateRequestValidator;
+    private final PersonAuthProvider personAuthProvider;
 
 
     /**
@@ -62,25 +65,13 @@ public class PersonService {
      * @throws PersonNotFoundException if person with given email can not be found.
      * @throws ServiceException        if received password is not valid.
      */
-    public PersonDto login(final CredentialsDto credentialsDto) throws PersonNotFoundException, ServiceException {
+    public PersonDto login(final CredentialsDto credentialsDto) throws PersonNotFoundException, ServiceException, IncorrectPasswordException {
         Person person = personRepository.findByEmail(credentialsDto.getEmail())
                 .orElseThrow(() -> new PersonNotFoundException("Unknown user"));
 
-        if (isPasswordInvalid(credentialsDto.getPassword(), person.getPassword())) {
-            throw new ServiceException("Invalid Password");
-        }
-        return personMapper.toPersonDto(person);
-    }
+        checkIfPasswordValid(credentialsDto.getPassword(), person.getPassword());
 
-    /**
-     * Checks if password from received credentials matches the person's password from database.
-     *
-     * @param password       is the password from credentialsDto.
-     * @param personPassword is the password retrieved from database.
-     * @return true if password matches, otherwise - false.
-     */
-    private boolean isPasswordInvalid(String password, String personPassword) {
-        return !passwordEncoder.matches(CharBuffer.wrap(password), personPassword);
+        return mapPersonDtoAndSetToken(person);
     }
 
 
@@ -98,27 +89,46 @@ public class PersonService {
         log.info("Looking for a person with email " + registerDto.getEmail());
         Optional<Person> oPerson = personRepository.findByEmail(registerDto.getEmail());
 
-        if (oPerson.isPresent()) {
-            Person existingPerson = oPerson.get();
-
-            if (existingPerson.getPassword() != null) {
-                throw new ServiceException("User with provided email already exists.");
-            }
-            existingPerson.setFirstName(registerDto.getFirstName());
-            existingPerson.setLastName(registerDto.getLastName());
-            existingPerson.setPassword(passwordEncoder.encode(CharBuffer.wrap(registerDto.getPassword())));
-            System.out.println(existingPerson);
-            personRepository.save(existingPerson);
-
-            log.info("Existing person updated.");
-
-            return personMapper.toPersonDto(existingPerson);
+        if (oPerson.isPresent() && oPerson.get().getPassword() == null) {
+            return updateAndRegisterExistingPerson(registerDto, oPerson.get());
         }
+
         final Person person = personMapper.toPerson(registerDto);
         person.setPassword(passwordEncoder.encode(CharBuffer.wrap(registerDto.getPassword())));
         log.info("Person created.");
         personRepository.save(person);
-        return personMapper.toPersonDto(person);
+
+        return mapPersonDtoAndSetToken(person);
+    }
+
+
+    /**
+     * Private method to update existing Person after registration.
+     *
+     * @param registerDto    contains necessary information of person to register.
+     * @param existingPerson is already existing object in DB and needs to be updated.
+     */
+    private PersonDto updateAndRegisterExistingPerson(RegisterDto registerDto, Person existingPerson) {
+        existingPerson.setFirstName(registerDto.getFirstName());
+        existingPerson.setLastName(registerDto.getLastName());
+        existingPerson.setPassword(passwordEncoder.encode(CharBuffer.wrap(registerDto.getPassword())));
+        personRepository.save(existingPerson);
+
+        log.info("Existing person updated.");
+
+        return mapPersonDtoAndSetToken(existingPerson);
+    }
+
+    /**
+     * Maps a {@link Person} to a {@link PersonDto} and sets an authentication token.
+     *
+     * @param person the {@link Person} entity to be mapped to a {@link PersonDto}.
+     * @return the {@link PersonDto} with the authentication token set.
+     */
+    private PersonDto mapPersonDtoAndSetToken(Person person) {
+        final var personDto = personMapper.toPersonDto(person);
+        personDto.setToken(personAuthProvider.createToken(personDto));
+        return personDto;
     }
 
     /**
@@ -145,25 +155,41 @@ public class PersonService {
     /**
      * Method to update password and save updated value to database.
      *
-     * @param requestDto the Data Transfer Object containing new password and current password to validate if update is allowed.
-     * @param email      is unique identifier of a person whom password is going to be updated.
+     * @param requestDto     the Data Transfer Object containing new password and current password to validate if update is allowed.
+     * @param authentication the authentication object containing user credentials and authorization details
      * @throws PersonNotFoundException    if person by given email is not found.
      * @throws IncorrectPasswordException if password received from requestDto does not match with person's password from the db.
      * @throws InvalidDataException       if password does not pass validation.
      */
-    public void updatePassword(final PasswordUpdateRequestDto requestDto, String email) throws PersonNotFoundException, IncorrectPasswordException, InvalidDataException {
+    public PersonDto updatePassword(final PasswordUpdateRequestDto requestDto, Authentication authentication) throws PersonNotFoundException, IncorrectPasswordException, InvalidDataException {
+        PersonDto personDto = (PersonDto) authentication.getPrincipal();
+        String email = personDto.getEmail();
+
         log.info("Looking for a person with email " + email);
         final Person person = personRepository.findByEmail(email)
                 .orElseThrow(() -> new PersonNotFoundException("Person can not be found."));
 
-        if (isPasswordInvalid(requestDto.getOldPassword(), person.getPassword())) {
-            throw new IncorrectPasswordException("Incorrect password.");
-        }
+        checkIfPasswordValid(requestDto.getOldPassword(), person.getPassword());
 
         final String newPassword = requestDto.getNewPassword();
         passwordUpdateRequestValidator.validate(newPassword);
         person.setPassword(passwordEncoder.encode(newPassword));
         log.info("Password updated successfully");
+
         personRepository.save(person);
+        return personDto;
+    }
+
+    /**
+     * Checks if password from received credentials matches the person's password from database.
+     *
+     * @param password       is the password from credentialsDto.
+     * @param personPassword is the password retrieved from database.
+     * @throws IncorrectPasswordException if passwords do not match.
+     */
+    private void checkIfPasswordValid(String password, String personPassword) throws IncorrectPasswordException {
+        if (!passwordEncoder.matches(CharBuffer.wrap(password), personPassword)) {
+            throw new IncorrectPasswordException("Incorrect password.");
+        }
     }
 }

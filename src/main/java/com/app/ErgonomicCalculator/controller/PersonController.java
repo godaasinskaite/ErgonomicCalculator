@@ -12,6 +12,7 @@ import com.app.ErgonomicCalculator.exception.ServiceException;
 import com.app.ErgonomicCalculator.service.PersonService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -44,10 +45,13 @@ public class PersonController {
      * @throws PersonNotFoundException if no user is found with the provided credentials.
      */
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody final CredentialsDto credentialsDto) throws ServiceException, PersonNotFoundException {
-        var person = personService.login(credentialsDto);
-        person.setToken(personAuthProvider.createToken(person));
-        return ResponseEntity.status(HttpStatus.OK).body(person);
+    public ResponseEntity<PersonDto> login(@RequestBody final CredentialsDto credentialsDto) throws ServiceException, PersonNotFoundException {
+        try {
+            var person = personService.login(credentialsDto);
+            return ResponseEntity.status(HttpStatus.OK).body(person);
+        } catch (PersonNotFoundException | ServiceException | IncorrectPasswordException ex) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
     }
 
     /**
@@ -59,10 +63,13 @@ public class PersonController {
      * @throws ServiceException if registerDto is with already registered email.
      */
     @PutMapping("/register")
-    public ResponseEntity<?> register(@RequestBody final RegisterDto registerDto) throws ServiceException {
-        var person = personService.registerPerson(registerDto);
-        person.setToken(personAuthProvider.createToken(person));
-        return ResponseEntity.status(HttpStatus.OK).body(person);
+    public ResponseEntity<PersonDto> register(@RequestBody final RegisterDto registerDto) throws ServiceException {
+        try {
+            var person = personService.registerPerson(registerDto);
+            return ResponseEntity.status(HttpStatus.OK).body(person);
+        } catch (ServiceException ex) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
     }
 
     /**
@@ -76,12 +83,14 @@ public class PersonController {
      * @throws InvalidDataException       if password validation fails.
      */
     @PutMapping("/updatePassword")
-    public ResponseEntity<?> updatePassword(@RequestBody final PasswordUpdateRequestDto passwordUpdateRequestDto, Authentication authentication) throws PersonNotFoundException, IncorrectPasswordException, InvalidDataException {
-        var personDto = (PersonDto) authentication.getPrincipal();
-        personService.updatePassword(passwordUpdateRequestDto, personDto.getEmail());
-        return ResponseEntity.status(HttpStatus.OK).body(personDto);
+    public ResponseEntity<PersonDto> updatePassword(@RequestBody final PasswordUpdateRequestDto passwordUpdateRequestDto, final Authentication authentication) throws PersonNotFoundException, IncorrectPasswordException, InvalidDataException {
+        try {
+            var personDto = personService.updatePassword(passwordUpdateRequestDto, authentication);
+            return ResponseEntity.status(HttpStatus.OK).body(personDto);
+        } catch (PersonNotFoundException | IncorrectPasswordException | InvalidDataException ex) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
     }
-
 
     /**
      * Method to delete unregistered person information from DB and local resources.
@@ -92,11 +101,12 @@ public class PersonController {
      * @throws IOException             if an input/output error occurs during processing.
      */
     @DeleteMapping("/delete/{email}")
-    public ResponseEntity<?> deletePerson(@PathVariable final String email) throws PersonNotFoundException, IOException {
-        personService.delete(email);
-        var response = new HashMap<>();
-        response.put("status", "success");
-        response.put("message", "Person deleted successfully");
-        return ResponseEntity.ok().body(response);
+    public ResponseEntity<String> deletePerson(@PathVariable final String email) throws PersonNotFoundException, IOException {
+        try {
+            personService.delete(email);
+            return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body("{\"message\":\"Person deleted successfully\"}");
+        } catch (PersonNotFoundException | IOException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).contentType(MediaType.APPLICATION_JSON).body("{\"message\":\"Person with specified email can not be found.\"}");
+        }
     }
 }
