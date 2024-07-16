@@ -25,7 +25,7 @@ By inputting specific, individual measurements, calculator generates a customize
 - PostgreSQL
 - MapStruct
 - Spring Data JPA
-- Controller Advise
+- Controller Advice
 - Unit Testing
 - Mockito
 - Apache PDFBox
