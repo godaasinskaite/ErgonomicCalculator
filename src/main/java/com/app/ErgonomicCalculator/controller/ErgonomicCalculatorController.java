@@ -14,7 +14,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.*;
-import java.util.HashMap;
 
 
 /**
@@ -40,12 +39,8 @@ public class ErgonomicCalculatorController {
      */
     @PostMapping("/new")
     public ResponseEntity<String> addNewAnthropometrics(@RequestBody final AnthropometricsRequestDto anthropometrics) throws InvalidDataException, IllegalAccessException, IOException {
-        try {
-            service.getNewPersonAnthropometricsAndCreateWorkspace(anthropometrics);
-            return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body("{\"message\":\"Person Anthropometrics processed and Workspace Metrics calculated.\"}");
-        } catch (InvalidDataException | IllegalAccessException | IOException ex) {
-            return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body("{\"message\":\"Person Anthropometrics can not be processed.\"}");
-        }
+        service.getNewPersonAnthropometricsAndCreateWorkspace(anthropometrics);
+        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body("{\"message\":\"Person Anthropometrics processed and Workspace Metrics calculated.\"}");
     }
 
     /**
@@ -61,12 +56,8 @@ public class ErgonomicCalculatorController {
      */
     @PostMapping("/anthropometrics")
     public ResponseEntity<String> addAnthropometricsAfterAuth(@RequestBody final AnthropometricsRequestDtoAfterAuth anthropometrics, final Authentication authentication) throws InvalidDataException, IOException, IllegalAccessException {
-        try {
-            service.updateOrCreateAnthropometricsAndWorkspace(anthropometrics, authentication);
-            return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body("{\"message\":\"Person Anthropometrics processed and Workspace Metrics calculated.\"}");
-        } catch (InvalidDataException | IOException | IllegalAccessException ex) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.APPLICATION_JSON).body("{\"message\":\"Person Anthropometrics can not be processed.\"}");
-        }
+        service.updateOrCreateAnthropometricsAndWorkspace(anthropometrics, authentication);
+        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body("{\"message\":\"Person Anthropometrics processed and Workspace Metrics calculated.\"}");
     }
 
     /**
