@@ -70,7 +70,9 @@ By inputting specific, individual measurements, calculator generates a customize
   - Instal required dependencies: "npm install"
   - Then run the application: "ng serve -o"
 
- #### Front-end part of this project is built with Angular and styled using Bootstrap framework. For more information: https://github.com/godaasinskaite/ergonomic-calculator
 
  ## 🎓 Credits:
  I am deeply grateful for the guidance and support from my mentor, Edvinas Prokofijovas, throughout this final project, which marks the results of my software development course at https://www.kodokelias.lt/
+
+________
+ #### Front-end part of this project is built with Angular and styled using Bootstrap framework. For more information: https://github.com/godaasinskaite/ergonomic-calculator
