@@ -42,7 +42,7 @@ By inputting specific, individual measurements, calculator generates a customize
 #### Steps to run using DOCKER
 
  - Click the link to download the setup script:
-[Download setup.sh](https://github.com/godaasinskaite/ErgonomicCalculator/setup.sh)
+[Download setup.sh](https://github.com/godaasinskaite/ErgonomicCalculator/blob/3cee12681d7b1444e59eaf9ad974a65062dde0d9/setup.sh)
  - Open your terminal and navigate to the directory where the script was downloaded: "cd /path/to/sh/directory"
  - Then run: "chmod +x setup.sh"
  - Then run: "./setup.sh"
