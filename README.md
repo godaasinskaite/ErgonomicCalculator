@@ -31,6 +31,46 @@ By inputting specific, individual measurements, calculator generates a customize
 - Apache PDFBox
 - Lombok
 
+### 🧰 Setup and Installation
+
+#### Prerequisites using DOCKER
+
+- [Git](https://git-scm.com/)
+- [Docker](https://www.docker.com/)
+- [Docker Compose](https://docs.docker.com/compose/install/)
+
+#### Steps to run using DOCKER
+
+ - Click the link to download the setup script:
+[Download setup.sh]
+
+ - Open your terminal and navigate to the directory where the script was downloaded: "cd /path/to/sh/directory"
+ - Then run: "chmod +x setup.sh"
+ - Then run: "./setup.sh"
+   
+   The script attempts to automatically open the frontend application in your default web browser at http://localhost:4200.
+
+#### Prerequisites using IDEA
+  - [IntelliJ IDEA](https://www.jetbrains.com/idea/download/)
+  - JDK 11
+  - [Git](https://git-scm.com/)
+  - [Node.js and npm](https://nodejs.org/en/download/)
+  - [Angular CLI](https://angular.io/cli) (install with `npm install -g @angular/cli`)
+
+  #### Steps to run using IDE
+  ###### Back-end:
+ - Clone the repository "git clone https://github.com/godaasinskaite/ErgonomicCalculator" (backend)
+ - Open project and update the PostgreSQL configuration with your database details:
+
+<img width="50%" alt="pav" src="https://github.com/user-attachments/assets/4ec79343-cd79-49f5-8297-40e301e8f8c5">
+
+  ###### Front-end:
+  - Clone the repository "git clone https://github.com/godaasinskaite/ergonomic-calculator" (frontend)
+  - Run the application with Maven "mvn clean spring-boot:run"
+  - Open your terminal and navigate to the front-end project directory: "cd /path/to/your/frontend"
+  - Instal required dependencies: "npm install"
+  - Then run the application: "ng serve -o"
+
  #### Front-end part of this project is built with Angular and styled using Bootstrap framework. For more information: https://github.com/godaasinskaite/ergonomic-calculator
 
  ## 🎓 Credits:
