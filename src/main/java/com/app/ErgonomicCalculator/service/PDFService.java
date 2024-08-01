@@ -24,6 +24,7 @@ import java.util.UUID;
 public class PDFService {
 
     private final WorkspaceMetricsRepository workspaceMetricsRepository;
+    private String baseDir;
 
     /**
      * Method creates a PDF document for the provided workspace metrics.
@@ -33,7 +34,8 @@ public class PDFService {
      */
     public void createWorkspacePDF(final WorkspaceMetrics workspaceMetrics) {
         try {
-            final File file = new File("src/main/resources/workspace-template.png");
+            findFileDirection();
+            final File file = new File(baseDir + "/workspace-template.png");
             final PDDocument document = new PDDocument();
             final PDImageXObject image = PDImageXObject.createFromFileByContent(file, document);
             final PDPage page = new PDPage(PDRectangle.A4);
@@ -53,6 +55,26 @@ public class PDFService {
         } catch (IOException e) {
             System.err.println("Error while adding background image to PDF: " + e.getMessage());
         }
+    }
+
+    /**
+     * Determines the base directory for file operations depending on whether the application is running
+     * in a Docker container or a local environment. Sets the `baseDir` field accordingly.
+     */
+    private void findFileDirection() {
+        String dockerDir = "/app/resources";
+        String localDir = "src/main/resources";
+        baseDir = isRunningOnDocker() ? dockerDir : localDir;
+    }
+
+    /**
+     * Checks if the application is running inside a Docker container.
+     * This method uses the presence of the /.dockerenv file to determine if the application is in Docker.
+     *
+     * @return true if the application is running inside a Docker container, false otherwise.
+     */
+    private boolean isRunningOnDocker() {
+        return new File("/.dockerenv").exists();
     }
 
     /**
@@ -117,6 +139,6 @@ public class PDFService {
      */
     private String generatePdfPath() throws IOException {
         final String uniqueFileName = "output_" + UUID.randomUUID() + ".pdf";
-        return "src/main/resources/generatedPDFs/" + uniqueFileName;
+        return baseDir + "/generatedPDFs/" + uniqueFileName;
     }
 }

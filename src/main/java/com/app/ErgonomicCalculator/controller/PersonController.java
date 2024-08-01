@@ -7,7 +7,6 @@ import com.app.ErgonomicCalculator.dto.RegisterDto;
 import com.app.ErgonomicCalculator.exception.IncorrectPasswordException;
 import com.app.ErgonomicCalculator.exception.InvalidDataException;
 import com.app.ErgonomicCalculator.exception.PersonNotFoundException;
-import com.app.ErgonomicCalculator.exception.ServiceException;
 import com.app.ErgonomicCalculator.service.PersonService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -38,12 +37,11 @@ public class PersonController {
      *
      * @param credentialsDto the Data Transfer Object containing the user's login credentials.
      * @return ResponseEntity containing the authenticated user's details and token.
-     * @throws ServiceException           if an error occurs during the login process.
      * @throws PersonNotFoundException    if no user is found with the provided credentials.
      * @throws IncorrectPasswordException if password in the credentials is incorrect.
      */
     @PostMapping("/login")
-    public ResponseEntity<PersonDto> login(@RequestBody final CredentialsDto credentialsDto) throws ServiceException, PersonNotFoundException, IncorrectPasswordException {
+    public ResponseEntity<PersonDto> login(@RequestBody final CredentialsDto credentialsDto) throws PersonNotFoundException, IncorrectPasswordException {
         var person = personService.login(credentialsDto);
         return ResponseEntity.status(HttpStatus.OK).body(person);
     }
@@ -54,10 +52,9 @@ public class PersonController {
      *
      * @param registerDto the Data Transfer Object containing user's register credentials.
      * @return ResponseEntity containing the authenticated user's details and token.
-     * @throws ServiceException if registerDto is with already registered email.
      */
     @PutMapping("/register")
-    public ResponseEntity<PersonDto> register(@RequestBody final RegisterDto registerDto) throws ServiceException {
+    public ResponseEntity<PersonDto> register(@RequestBody final RegisterDto registerDto) {
         var person = personService.registerPerson(registerDto);
         return ResponseEntity.status(HttpStatus.OK).body(person);
     }

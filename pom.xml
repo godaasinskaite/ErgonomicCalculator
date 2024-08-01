@@ -29,7 +29,7 @@
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<scope>runtime</scope>
+			<version>42.6.0</version> <!-- Check for the latest version -->
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
@@ -85,6 +85,7 @@
 	</dependencies>
 
 	<build>
+		<finalName>ErgonomicCalculator</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>

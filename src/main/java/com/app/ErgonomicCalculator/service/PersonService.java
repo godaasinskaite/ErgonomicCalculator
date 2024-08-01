@@ -8,7 +8,6 @@ import com.app.ErgonomicCalculator.dto.RegisterDto;
 import com.app.ErgonomicCalculator.exception.IncorrectPasswordException;
 import com.app.ErgonomicCalculator.exception.InvalidDataException;
 import com.app.ErgonomicCalculator.exception.PersonNotFoundException;
-import com.app.ErgonomicCalculator.exception.ServiceException;
 import com.app.ErgonomicCalculator.mapper.PersonMapper;
 import com.app.ErgonomicCalculator.model.Person;
 import com.app.ErgonomicCalculator.repository.PersonRepository;
@@ -63,9 +62,8 @@ public class PersonService {
      * @param credentialsDto the Data Transfer Object containing person email and password.
      * @return PersonDto holding name, lastName, generated token, unique identifiers id and email.
      * @throws PersonNotFoundException if person with given email can not be found.
-     * @throws ServiceException        if received password is not valid.
      */
-    public PersonDto login(final CredentialsDto credentialsDto) throws PersonNotFoundException, ServiceException, IncorrectPasswordException {
+    public PersonDto login(final CredentialsDto credentialsDto) throws PersonNotFoundException, IncorrectPasswordException {
         Person person = personRepository.findByEmail(credentialsDto.getEmail())
                 .orElseThrow(() -> new PersonNotFoundException("Unknown user"));
 
@@ -83,17 +81,16 @@ public class PersonService {
      *
      * @param registerDto the Data Transfer Object containing information for registration.
      * @return PersonDto holding name, lastName, generated token, unique identifiers id and email.
-     * @throws ServiceException if person by received email does exist and password is not null.
      */
-    public PersonDto registerPerson(final RegisterDto registerDto) throws ServiceException {
+    public PersonDto registerPerson(final RegisterDto registerDto) {
         log.info("Looking for a person with email " + registerDto.getEmail());
         Optional<Person> oPerson = personRepository.findByEmail(registerDto.getEmail());
 
         if (oPerson.isPresent() && oPerson.get().getPassword() == null) {
             return updateAndRegisterExistingPerson(registerDto, oPerson.get());
         }
-
-        final Person person = personMapper.toPerson(registerDto);
+        Person person;
+        person = personMapper.toPerson(registerDto);
         person.setPassword(passwordEncoder.encode(CharBuffer.wrap(registerDto.getPassword())));
         log.info("Person created.");
         personRepository.save(person);
