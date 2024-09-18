@@ -63,9 +63,10 @@ By inputting specific, individual measurements, calculator generates a customize
 
 <img width="50%" alt="pav" src="https://github.com/user-attachments/assets/4ec79343-cd79-49f5-8297-40e301e8f8c5">
 
+  - Run the application with Maven "mvn clean spring-boot:run"
+
   ###### Front-end:
   - Clone the repository "git clone https://github.com/godaasinskaite/ergonomic-calculator" (frontend)
-  - Run the application with Maven "mvn clean spring-boot:run"
   - Open your terminal and navigate to the front-end project directory: "cd /path/to/your/frontend"
   - Instal required dependencies: "npm install"
   - Then run the application: "ng serve -o"
